@@ -1,0 +1,12 @@
+# Versions used for all experiments of the thesis (Python 3.12).
+# torch was installed with CUDA 12.6 (torch==2.10.0+cu126), see https://pytorch.org for the matching index URL.
+torch==2.10.0
+torchsde==0.2.6
+numpy==2.3.5
+gymnasium==1.2.3
+dm_control==1.0.36
+mujoco==3.4.0
+PyYAML==6.0.3
+tqdm==4.67.1
+tensorboard==2.20.0
+matplotlib==3.10.8

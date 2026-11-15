@@ -1,0 +1,85 @@
+env:
+  backend: dmc
+  name: cartpole_balance
+  time_limit: 500
+  dt: 0.01
+  # environment repeat, not related to irregular sampling
+  action_repeat: 2
+
+  # seed for envs 
+  seed: 0
+
+  # irregular sampling
+  irregular_sampling: True
+  irregular_max_repeat: 7
+  irregular_dist: "uniform" # only uniform is implemented
+
+train: 
+  # overall training parameters
+  batch_size: 16
+  num_envs: 16 # has to be the same as batch size
+
+  sequence_length: 50
+  train_steps: 500000
+  train_ratio: 0.5 # ratio of env steps to training updates, e.g. 0.5, 1 update every 2 env steps 
+  
+  pretrain_steps: 500  # number of steps to pretrain the world model before starting policy learning
+
+  # replay buffer parameters
+  replay_buffer_capacity: 100000
+
+  # logging and checkpointing parameters
+  log_every: 500
+  eval_every: 10000
+  checkpoint_every: 10000
+
+  # evaluation parameters
+  eval_episodes: 10
+  eval_num_envs: 5
+
+model:
+  name: rssm
+  controlled_nsde: {hidden_dim: 512, hidden_layers: 2, activation: SiLU, layer_norm: LayerNorm, bias: False, weight_dist: "truncated_normal", output_weight_dist: "truncated_normal", fan_mode: "fan_in"}
+  rssm: {hidden_dim: 512, hidden_layers: 2, activation: SiLU, layer_norm: LayerNorm, bias: False, weight_dist: truncated_normal, output_weight_dist: truncated_normal, fan_mode: fan_in}
+  encoder: {hidden_dim: 512, hidden_layers: 4, activation: SiLU, layer_norm: LayerNorm, bias: False, weight_dist: "truncated_normal", output_weight_dist: "truncated_normal", fan_mode: "fan_in"}
+  decoder: {hidden_dim: 512, hidden_layers: 4, activation: SiLU, layer_norm: LayerNorm, bias: False, weight_dist: "truncated_normal", output_weight_dist: "truncated_normal", fan_mode: "fan_in"}
+  reward_head: {hidden_dim: 512, hidden_layers: 2, activation: SiLU, layer_norm: LayerNorm, bias: False, weight_dist: "truncated_normal", output_weight_dist: "zeros", fan_mode: "fan_in"}
+  freebits: 1.0
+
+  # SDE specific parameters
+  adjoint: False
+  method: euler
+  energy_preserving: True # True = no latent state resetting
+
+  # Latent Dimensions
+  latent_dim_deter: 512
+  latent_dim_stoch: 32
+  context_dim: 512
+
+  # Learning Rate
+  learning_rate: 0.0001
+
+policylearning:
+  horizon: 15
+  gamma: 0.997
+  lambda_: 0.95
+  num_bins: 255
+  bin_limit: 20
+  actor_lr: 0.00003
+  critic_lr: 0.00003
+  actor_grad_clip: 100.0
+  critic_grad_clip: 100.0
+  slow_critic_tau: 0.02
+
+
+  actor: {hidden_dim: 512, hidden_layers: 2, activation: SiLU, layer_norm: LayerNorm, bias: False, weight_dist: "truncated_normal", output_weight_dist: "zeros", fan_mode: "fan_in", absmax: 1.0, min_std: 0.1, max_std: 1.0}
+  critic: {hidden_dim: 512, hidden_layers: 2, activation: SiLU, layer_norm: LayerNorm, bias: False, weight_dist: "truncated_normal", output_weight_dist: "zeros", fan_mode: "fan_in"}
+
+  ret_norm_limit: 1.0
+  ret_norm_rate: 0.01
+  entropy_coeff: 0.0003
+
+  use_stoch_policy: True
+
+
+
